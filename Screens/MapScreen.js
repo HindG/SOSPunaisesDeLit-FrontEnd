@@ -17,7 +17,7 @@ export default function MapScreen({ navigation }) {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get('http://192.168.0.18:3000/map_points')
+      const response = await axios.get('https://node-postgres-cloudinary-b3575d43839e.herokuapp.com/map_points')
       setMarkersList(response.data);
     } catch (error) {
       console.log('error is:', error);

@@ -23,7 +23,7 @@ function FormScreen({ navigation }) {
       "title": `Date de l'incident : ${incidentDate.toLocaleDateString()}`,
       "description": `Date de traitement : ${treatmentDate.toLocaleDateString()}`
     }
-    axios.post('http://192.168.0.18:3000/map_points', body)
+    axios.post('https://node-postgres-cloudinary-b3575d43839e.herokuapp.com/map_points', body)
       .then((response) => {
         setName("")
         setIncidentDate(new Date())
