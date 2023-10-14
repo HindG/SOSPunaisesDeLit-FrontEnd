@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Button, View, Text, Pressable, Dimensions } from 'react-native';
+import { StyleSheet, Button, Switch, View, SafeAreaView, ScrollView, StatusBar, Text, Pressable, Dimensions } from 'react-native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import axios from 'axios';
@@ -12,6 +12,8 @@ function FormScreen({ navigation }) {
   const [treatmentDate, setTreatmentDate] = useState(new Date());
   const [showTreatmentDate, setShowTreatmentDate] = useState(false);
   const [showThankyouModal, setShowThankyouModal] = useState(false);
+  const [isTreated, setShowIsTreated] = useState(false);
+  const toggleSwitch = () => setShowIsTreated(previousState => !previousState);
 
   const postData = () => {
     const currentDate = new Date()
@@ -21,7 +23,8 @@ function FormScreen({ navigation }) {
       "signal_date": currentDate.toLocaleDateString(),
       "incident_date": incidentDate.toLocaleDateString(),
       "title": `Date de l'incident : ${incidentDate.toLocaleDateString()}`,
-      "description": `Date de traitement : ${treatmentDate.toLocaleDateString()}`
+      "description": `Date de traitement : ${isTreated ? treatmentDate.toLocaleDateString() : "inconnue"}`,
+      "isTreated": isTreated,
     }
     axios.post('https://node-postgres-cloudinary-b3575d43839e.herokuapp.com/map_points', body)
       .then((response) => {
@@ -35,7 +38,7 @@ function FormScreen({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.titlecontainer}>
         <Text style={styles.title}>Signaler un incident</Text>
       </View>
@@ -52,52 +55,73 @@ function FormScreen({ navigation }) {
         onNotFound={() => console.log('no results')}
         styles={styles.placecontainer}
       />
-      <Text style={styles.label}>Date de l'incident</Text>
-      <Pressable style={styles.dateinput} onPress={() => setShowIncidentDate(!showIncidentDate)}>
-        <Text>{incidentDate.toLocaleDateString()}</Text>
-      </Pressable>
-      {showIncidentDate && (
-        <DateTimePicker
-          testID="dateTimePicker"
-          value={incidentDate}
-          mode="date"
-          is24Hour={true}
-          onChange={(event, selectedDate) => {
-            setShowIncidentDate(false)
-            setIncidentDate(selectedDate)
-          }
-          }
-          positiveButton={{ label: 'OK', textColor: "#DB5A42" }}
-          negativeButton={{ label: 'Cancel', textColor: "#DB5A42" }}
-        />
-      )}
-      <Text style={styles.label}>Date de traitement</Text>
-      <Pressable style={styles.dateinput} onPress={() => setShowTreatmentDate(!showTreatmentDate)}>
-        <Text>{treatmentDate.toLocaleDateString()}</Text>
-      </Pressable>
-      {showTreatmentDate && (
-        <DateTimePicker
-          testID="dateTimePicker"
-          value={treatmentDate}
-          mode="date"
-          is24Hour={true}
-          onChange={(event, selectedDate) => {
-            setShowTreatmentDate(false)
-            setTreatmentDate(selectedDate)
-          }
-          }
-          positiveButton={{ label: 'OK', textColor: "#DB5A42" }}
-          negativeButton={{ label: 'Cancel', textColor: "#DB5A42" }}
-        />
-      )}
-      <View style={styles.btncontainer}>
-        <Button
-          color="#DB5A42"
-          title="Envoyer"
-          onPress={() => postData()}
-          disabled={coordinates.length === 0}
-        />
-      </View>
+      <ScrollView style={styles.scrollablecontainer}>
+        <Text style={styles.label}>Date de l'incident</Text>
+        <Pressable style={styles.dateinput} onPress={() => setShowIncidentDate(!showIncidentDate)}>
+          <Text>{incidentDate.toLocaleDateString()}</Text>
+        </Pressable>
+        {showIncidentDate && (
+          <DateTimePicker
+            testID="dateTimePicker"
+            value={incidentDate}
+            mode="date"
+            is24Hour={true}
+            onChange={(event, selectedDate) => {
+              setShowIncidentDate(false)
+              setIncidentDate(selectedDate)
+            }
+            }
+            positiveButton={{ label: 'OK', textColor: "#DB5A42" }}
+            negativeButton={{ label: 'Cancel', textColor: "#DB5A42" }}
+          />
+        )}
+        <Text style={styles.label}>Est-ce que le lieu a été traité contre les punaises de lit ?</Text>
+        <View style={styles.switchcontainer}>
+          <Switch
+            trackColor={{ false: '#767577', true: '#A57F60' }}
+            thumbColor={isTreated ? '#A57F60' : '#f4f3f4'}
+            onValueChange={toggleSwitch}
+            value={isTreated}
+          />
+        </View>
+        {isTreated &&
+          <View>
+            <Text style={[styles.label, styles.treatmentlabel]}>Date de traitement</Text>
+            <Pressable style={styles.dateinput} onPress={() => setShowTreatmentDate(!showTreatmentDate)}>
+              <Text>{treatmentDate.toLocaleDateString()}</Text>
+            </Pressable>
+            {showTreatmentDate && (
+              <DateTimePicker
+                testID="dateTimePicker"
+                value={treatmentDate}
+                mode="date"
+                is24Hour={true}
+                onChange={(event, selectedDate) => {
+                  setShowTreatmentDate(false)
+                  setTreatmentDate(selectedDate)
+                }
+                }
+                positiveButton={{ label: 'OK', textColor: "#DB5A42" }}
+                negativeButton={{ label: 'Cancel', textColor: "#DB5A42" }}
+              />
+            )}
+          </View>
+        }
+        <View style={styles.btncontainer}>
+          <Button
+            color="#DB5A42"
+            title="Envoyer"
+            onPress={() => postData()}
+            disabled={coordinates.length === 0}
+          />
+        </View>
+      </ScrollView>
+      {showThankyouModal &&
+        <View style={styles.thankyoumodal}>
+          <Pressable style={styles.thankyoumodalexit} onPress={() => setShowThankyouModal(false)}><Text style={styles.thankyoumodalexittext}>x</Text></Pressable>
+          <Text style={styles.thankyoumodaltext}>Merci pour votre signalement !</Text>
+        </View>
+      }
       <View style={styles.mapbtncontainer}>
         <Button
           color="#A57F60"
@@ -105,13 +129,7 @@ function FormScreen({ navigation }) {
           onPress={() => navigation.navigate('Map')}
         />
       </View>
-      {showThankyouModal &&
-        <View style={styles.thankyoumodal}>
-          <Pressable style={styles.thankyoumodalexit} onPress={() => setShowThankyouModal(false)}><Text style={styles.thankyoumodalexittext}>x</Text></Pressable>
-          <Text style={styles.thankyoumodaltext}>Merci pour votre signalement !</Text>
-        </View>
-      }
-    </View>
+    </SafeAreaView >
   );
 }
 
@@ -122,6 +140,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 30,
     textAlign: "center",
+    marginBottom: 10,
   },
   placecontainer: {
     container: {
@@ -138,16 +157,22 @@ const styles = StyleSheet.create({
     },
   },
   container: {
-    padding: 50,
     backgroundColor: '#F8E5CE',
     width: "100%",
     height: "100%",
+    paddingLeft: 50,
+    paddingRight: 30,
+    paddingBottom: 120,
+    paddingTop: 50,
+  },
+  scrollablecontainer: {
+    paddingRight: 20,
   },
   label: {
     fontSize: 15,
     color: "#858180",
     textAlign: "left",
-    marginTop: 20,
+    marginTop: 18,
     marginBottom: 10,
   },
   btncontainer: {
@@ -192,4 +217,10 @@ const styles = StyleSheet.create({
   thankyoumodalexittext: {
     fontSize: 22,
   },
+  switchcontainer: {
+    alignItems: "flex-start"
+  },
+  treatmentlabel: {
+    marginTop: 5
+  }
 });
