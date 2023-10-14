@@ -26,25 +26,27 @@ export default function MapScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <MapView
-        style={styles.map}
-        initialRegion={{
-          latitude: 46.227638,
-          longitude: 2.213749,
-          latitudeDelta: 10,
-          longitudeDelta: 10,
-        }}>
-        {MarkersList.map((marker, index) => {
-          return (
-            <Marker
-              key={index}
-              coordinate={marker.coordinates}
-              title={marker.title}
-              description={marker.description}
-            />
-          )
-        })}
-      </MapView>
+      <View style={styles.mapcontainer}>
+        <MapView
+          style={styles.map}
+          initialRegion={{
+            latitude: 46.227638,
+            longitude: 2.213749,
+            latitudeDelta: 10,
+            longitudeDelta: 10,
+          }}>
+          {MarkersList.map((marker, index) => {
+            return (
+              <Marker
+                key={index}
+                coordinate={marker.coordinates}
+                title={marker.title}
+                description={marker.description}
+              />
+            )
+          })}
+        </MapView>
+      </View>
       <View style={styles.formbtncontainer}>
         <Button
           color="#A57F60"
@@ -62,6 +64,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F8E5CE',
     alignItems: 'center',
+  },
+  mapcontainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: -75,
   },
   map: {
     width: '100%',
