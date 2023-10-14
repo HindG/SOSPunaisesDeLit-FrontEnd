@@ -21,7 +21,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff",
-        "softwareKeyboardLayoutMode": "pan"
+        "softwareKeyboardLayoutMode": "pan",
+        "versionCode": 2
       },
       "package": "com.hindg.SOSPunaisesDeLit"
     },
