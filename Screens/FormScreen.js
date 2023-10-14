@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Button, Switch, View, SafeAreaView, ScrollView, StatusBar, Text, Pressable, Dimensions } from 'react-native';
+import { StyleSheet, Button, Switch, View, SafeAreaView, ScrollView, Text, Pressable, Dimensions } from 'react-native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import axios from 'axios';
